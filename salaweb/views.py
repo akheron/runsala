@@ -31,6 +31,7 @@ def login_view(request):
 @login_required
 def index(request):
     accesses = Access.objects.filter(user=request.user)
+
     repos = [a.repository for a in accesses]
 
     return render(request, 'salaweb/index.html', {
