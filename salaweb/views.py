@@ -1,22 +1,38 @@
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+from django.shortcuts import render
+
 from salaweb.models import Access
 from salaweb.forms import LoginForm
 
 
-def login(request):
+def login_view(request):
     if request.method == 'POST':
+        error = True
         form = LoginForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
+            username = form.cleaned_data['username']
             password = form.cleaned_data['password']
+            user = authenticate(username=username, password=password)
+            if user is not None and user.is_active:
+                login(request, user)
+                return HttpResponseRedirect(request.GET.get('next', '/'))
+    else:
+        form = LoginForm()
+        error = False
 
-            qs = Access.objects.filter(user__email=email)
-            if not qs.exists():
-                # Unknown email
-                pass
+    return render(request, 'salaweb/login.html', {
+        'form': form,
+        'error': error,
+    })
 
-            # Try to decrypt one key
-            access = qs[0]
-            if not try_decrypt(access.key, password):
-                # Invalid password
-                pass
 
+@login_required
+def index(request):
+    accesses = Access.objects.filter(user=request.user)
+    repos = [a.repository for a in accesses]
+
+    return render(request, 'salaweb/index.html', {
+        'repositories': repos,
+    })

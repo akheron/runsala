@@ -1,0 +1,9 @@
+{% extends "salaweb/base.html" %}
+
+{% block content %}
+<h1>Passwords</h1>
+
+{% for repository in repositories %}
+<div>{{ repository }}</div>
+{% endfor %}
+{% endblock %}
