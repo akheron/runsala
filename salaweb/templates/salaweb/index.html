@@ -1,9 +1,25 @@
 {% extends "salaweb/base.html" %}
 
 {% block content %}
-<h1>Passwords</h1>
-
-{% for repository in repositories %}
-<div>{{ repository }}</div>
+<div class="stack">
+  {% for repository in repositories %}
+  <div data-repository="{{ repository.name }}" class="tree">
+    {{ repository.as_html|safe }}
+  </div>
 {% endfor %}
+</div>
+
+<div id="password-prompt" class="modal hide fade">
+  <div class="modal-body">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <p><label>
+      Please enter your password:<br>
+      <input type="password" name="password">
+    </label></p>
+    <p>
+      <button class="btn" data-dismiss="modal">Cancel</button>
+      <button class="btn btn-primary">OK</button>
+    </p>
+  </div>
+</div>
 {% endblock %}

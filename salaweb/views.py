@@ -1,13 +1,15 @@
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
 from salaweb.models import Access
 from salaweb.forms import LoginForm
+from salaweb.repository import Repository
 
 
-def login_view(request):
+def login(request):
+    from django.contrib.auth import authenticate, login
+
     if request.method == 'POST':
         error = True
         form = LoginForm(request.POST)
@@ -28,12 +30,29 @@ def login_view(request):
     })
 
 
+def logout(request):
+    from django.contrib.auth import logout
+    from django.conf import settings
+
+    logout(request)
+    return HttpResponseRedirect(settings.LOGIN_URL)
+
+
 @login_required
 def index(request):
     accesses = Access.objects.filter(user=request.user)
-
-    repos = [a.repository for a in accesses]
+    repositories = [Repository(a.repository) for a in accesses]
 
     return render(request, 'salaweb/index.html', {
-        'repositories': repos,
+        'repositories': repositories,
     })
+
+
+@login_required
+def settings(request):
+    pass
+
+
+@user_passes_test(lambda user: user.is_superuser)
+def admin(request):
+    pass

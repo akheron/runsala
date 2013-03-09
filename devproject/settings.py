@@ -150,3 +150,6 @@ LOGGING = {
 }
 
 LOGIN_URL = '/login/'
+
+import os
+SALAWEB_DATADIR = os.path.join(os.path.dirname(__file__), '..')

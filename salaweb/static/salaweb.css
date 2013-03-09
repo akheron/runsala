@@ -1,0 +1,15 @@
+body {
+    padding-top: 50px;
+}
+
+.stack > :not(.active) {
+    display: none;
+}
+
+.tree {
+    font-family: "Courier New", monospace;
+}
+
+.file, .dir .dir {
+    padding-left: 25px;
+}
