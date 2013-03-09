@@ -12,14 +12,14 @@
 <div id="password-prompt" class="modal hide fade">
   <div class="modal-body">
     <button type="button" class="close" data-dismiss="modal">×</button>
-    <p><label>
-      Please enter your password:<br>
+    <form>
+      <label>Enter your login password:</label>
       <input type="password" name="password">
-    </label></p>
-    <p>
-      <button class="btn" data-dismiss="modal">Cancel</button>
-      <button class="btn btn-primary">OK</button>
-    </p>
+      <div class="btn-toolbar">
+        <button class="btn" data-dismiss="modal">Cancel</button>
+        <input type="submit" class="btn btn-primary" value="OK">
+      </div>
+    </form>
   </div>
 </div>
 {% endblock %}

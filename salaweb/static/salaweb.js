@@ -23,9 +23,27 @@
     };
 
     var repository = function(el) {
-        el.find('a').click(function(e) {
+        var submit = function(e, link, form) {
             e.preventDefault();
-            $('#password-prompt').modal();
+            load(
+                $(link).attr('href'),
+                $(form).find('[name=password]').val()
+            );
+        };
+
+        var load = function(path, password) {
+            console.log(path, password);
+        };
+
+        el.find('a').click(function(e) {
+            var link = this;
+
+            e.preventDefault();
+            $('#password-prompt')
+                .find('form').off('submit').on('submit', function(e) {
+                    submit(e, link, this);
+                }).end()
+                .modal();
         });
     };
 
