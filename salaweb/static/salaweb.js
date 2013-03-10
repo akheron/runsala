@@ -23,28 +23,34 @@
     };
 
     var repository = function(el) {
-        var submit = function(e, link, form) {
+        var prompt = $('#password-prompt'),
+            form = prompt.find('form'),
+            password = form.find('[name=password]');
+
+        var open = function(e) {
+            var path = $(this).attr('href');
             e.preventDefault();
-            load(
-                $(link).attr('href'),
-                $(form).find('[name=password]').val()
-            );
+
+            password.val('');
+            form.off('submit').on('submit', function(e) {
+                e.preventDefault();
+                load(path, password.val());
+            });
+            prompt.modal();
         };
 
-        var load = function(path, password) {
-            console.log(path, password);
+        var load = function(path, pw) {
+            $.ajax({
+                url: 'ajax/' + path,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({password: pw})
+            }).done(function(data) {
+                console.log(data);
+            });
         };
 
-        el.find('a').click(function(e) {
-            var link = this;
-
-            e.preventDefault();
-            $('#password-prompt')
-                .find('form').off('submit').on('submit', function(e) {
-                    submit(e, link, this);
-                }).end()
-                .modal();
-        });
+        el.on('click', 'a', open);
     };
 
     $(function() {

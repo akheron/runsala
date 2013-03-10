@@ -37,10 +37,10 @@ class Repository(object):
                 else:
                     yield '<div class="file depth%d">' % depth
                     yield '<a href="%s">%s</a>' % (
-                        cgi.escape(urllib.quote_plus(os.path.join(
+                        cgi.escape(urllib.quote(os.path.join(
                             self.name,
                             os.path.relpath(path, self.path),
-                        ), '/')),
+                        ))),
                         cgi.escape(node),
                     )
                     yield '</div>'

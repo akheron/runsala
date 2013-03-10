@@ -1,5 +1,7 @@
+import json
+
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
 from salaweb.models import Access
@@ -46,6 +48,34 @@ def index(request):
     return render(request, 'salaweb/index.html', {
         'repositories': repositories,
     })
+
+
+def ajax_response(status, data):
+    return HttpResponse(
+        json.dumps(data),
+        content_type='application/json',
+        status=status,
+    )
+
+
+@login_required
+def ajax(request, path):
+    try:
+        data = json.loads(request.body)
+    except ValueError:
+        return ajax_response(400, {'error': 'Invalid JSON'})
+
+    if not isinstance(data, dict):
+        return ajax_response(400, {'error': 'Object expected'})
+
+    password = data.get('password')
+    if not isinstance(password, unicode):
+        return ajax_response(400, {'error': 'String value required: password'})
+
+    print 'path', path
+    print 'password', password
+
+    return ajax_response(200, {'value': 'foo'})
 
 
 @login_required
