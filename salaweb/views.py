@@ -5,6 +5,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 
+import sala
+from sala.gpg import gpg_decrypt
+
 from salaweb.models import Access
 from salaweb.forms import LoginForm
 from salaweb.repository import Repository
@@ -67,6 +70,13 @@ def ajax(request, repository, path):
         return ajax_response(503, {'error': 'Allowed methods: POST'})
 
     try:
+        Access.objects.get(user=request.user, repository=repository)
+    except Access.DoesNotExist:
+        return ajax_response(404, {
+            'error': 'Not found: %s' % os.path.join(repository, path),
+        })
+
+    try:
         data = json.loads(request.body)
     except ValueError:
         return ajax_response(400, {'error': 'Invalid JSON'})
@@ -78,23 +88,29 @@ def ajax(request, repository, path):
     if not isinstance(password, unicode):
         return ajax_response(400, {'error': 'String value required: password'})
 
-    repositories_root = os.path.abspath(os.path.join(
+    password_path = os.path.join(
+        settings.SALAWEB_DATADIR,
+        'master_passwords',
+        request.user.pk,
+        repository + '.asc',
+    )
+    master_password = gpg_decrypt(password_path, password)
+    if not master_password:
+        return ajax_response(400, {'error': 'Invalid password'})
+
+    repository_path = os.path.abspath(os.path.join(
         settings.SALAWEB_DATADIR,
         'repositories',
-    ))
-    repository_path = os.path.abspath(os.path.join(
-        repositories_root,
         repository,
     ))
+    try:
+        secret = sala.Repository(repository_path, master_password).get(path)
+    except Exception:
+        return ajax_response(404, {
+            'error': 'Not found: %s' % os.path.join(repository, path),
+        })
 
-    if repository_path[:len(repositories_root)] != repositories_root:
-        return ajax_response(400, {'error': 'Directory climbing'})
-
-    print 'repository', repository_path
-    print 'path', path
-    print 'password', password
-
-    return ajax_response(200, {'value': 'foo'})
+    return ajax_response(200, {'secret': secret})
 
 
 @login_required
