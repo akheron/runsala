@@ -1,4 +1,5 @@
 import json
+import os
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponse, HttpResponseRedirect
@@ -59,7 +60,12 @@ def ajax_response(status, data):
 
 
 @login_required
-def ajax(request, path):
+def ajax(request, repository, path):
+    from django.conf import settings
+
+    if request.method != 'POST':
+        return ajax_response(503, {'error': 'Allowed methods: POST'})
+
     try:
         data = json.loads(request.body)
     except ValueError:
@@ -72,6 +78,19 @@ def ajax(request, path):
     if not isinstance(password, unicode):
         return ajax_response(400, {'error': 'String value required: password'})
 
+    repositories_root = os.path.abspath(os.path.join(
+        settings.SALAWEB_DATADIR,
+        'repositories',
+    ))
+    repository_path = os.path.abspath(os.path.join(
+        repositories_root,
+        repository,
+    ))
+
+    if repository_path[:len(repositories_root)] != repositories_root:
+        return ajax_response(400, {'error': 'Directory climbing'})
+
+    print 'repository', repository_path
     print 'path', path
     print 'password', password
 

@@ -1,5 +1,38 @@
+// Django CSRF handling
+$(function() {
+    var csrftoken = (function(name) {
+            var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    })('csrftoken'),
+        csrfSafeMethod = function(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    };
+
+    $.ajaxSetup({
+        crossDomain: false, // obviates need for sameOrigin test
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type)) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+});
+
+
 (function() {
-    var tabs = function(tabs, stack) {
+    function tabs(tabs, stack) {
         if(!(tabs.length && stack.length)) {
             // Not on the main page
             return;
@@ -22,7 +55,7 @@
         });
     };
 
-    var repository = function(el) {
+    function repository(el) {
         var prompt = $('#password-prompt'),
             form = prompt.find('form'),
             password = form.find('[name=password]');
