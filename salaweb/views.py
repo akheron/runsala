@@ -1,12 +1,6 @@
-import json
-import os
-
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
-
-import sala
-from sala.gpg import gpg_decrypt
 
 from salaweb.models import Access
 from salaweb.forms import LoginForm
@@ -52,65 +46,6 @@ def index(request):
     return render(request, 'salaweb/index.html', {
         'repositories': repositories,
     })
-
-
-def ajax_response(status, data):
-    return HttpResponse(
-        json.dumps(data),
-        content_type='application/json',
-        status=status,
-    )
-
-
-@login_required
-def ajax(request, repository, path):
-    from django.conf import settings
-
-    if request.method != 'POST':
-        return ajax_response(503, {'error': 'Allowed methods: POST'})
-
-    try:
-        Access.objects.get(user=request.user, repository=repository)
-    except Access.DoesNotExist:
-        return ajax_response(404, {
-            'error': 'Not found: %s' % os.path.join(repository, path),
-        })
-
-    try:
-        data = json.loads(request.body)
-    except ValueError:
-        return ajax_response(400, {'error': 'Invalid JSON'})
-
-    if not isinstance(data, dict):
-        return ajax_response(400, {'error': 'Object expected'})
-
-    password = data.get('password')
-    if not isinstance(password, unicode):
-        return ajax_response(400, {'error': 'String value required: password'})
-
-    password_path = os.path.join(
-        settings.SALAWEB_DATADIR,
-        'master_passwords',
-        request.user.pk,
-        repository + '.asc',
-    )
-    master_password = gpg_decrypt(password_path, password)
-    if not master_password:
-        return ajax_response(400, {'error': 'Invalid password'})
-
-    repository_path = os.path.abspath(os.path.join(
-        settings.SALAWEB_DATADIR,
-        'repositories',
-        repository,
-    ))
-    try:
-        secret = sala.Repository(repository_path, master_password).get(path)
-    except Exception:
-        return ajax_response(404, {
-            'error': 'Not found: %s' % os.path.join(repository, path),
-        })
-
-    return ajax_response(200, {'secret': secret})
 
 
 @login_required
