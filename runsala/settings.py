@@ -12,9 +12,9 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'salaweb',
-        'USER': 'salaweb',
-        'PASSWORD': 'salaweb',
+        'NAME': 'runsala',
+        'USER': 'runsala',
+        'PASSWORD': 'runsala',
         'HOST': '127.0.0.1',
         'PORT': '',
     }
@@ -97,7 +97,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
 )
 
-ROOT_URLCONF = 'salaweb.urls'
+ROOT_URLCONF = 'runsala.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'devproject.wsgi.application'
@@ -117,7 +117,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'south',
-    'salaweb',
+    'runsala',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -152,4 +152,4 @@ LOGGING = {
 LOGIN_URL = '/login/'
 
 import os
-SALAWEB_DATADIR = os.path.join(os.path.dirname(__file__), '..')
+RUNSALA_DATADIR = os.path.join(os.path.dirname(__file__), '..')

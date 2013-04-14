@@ -8,25 +8,47 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding model 'Repository'
+        db.create_table(u'runsala_repository', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=50)),
+            ('description', self.gf('django.db.models.fields.TextField')()),
+        ))
+        db.send_create_signal(u'runsala', ['Repository'])
+
+        # Adding model 'Secret'
+        db.create_table(u'runsala_secret', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('path', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('data', self.gf('django.db.models.fields.TextField')()),
+        ))
+        db.send_create_signal(u'runsala', ['Secret'])
+
         # Adding model 'Access'
-        db.create_table(u'salaweb_access', (
+        db.create_table(u'runsala_access', (
             (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('repository', self.gf('django.db.models.fields.CharField')(max_length=255)),
+            ('repository', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['runsala.Repository'])),
             ('key', self.gf('django.db.models.fields.TextField')()),
         ))
-        db.send_create_signal(u'salaweb', ['Access'])
+        db.send_create_signal(u'runsala', ['Access'])
 
         # Adding unique constraint on 'Access', fields ['user', 'repository']
-        db.create_unique(u'salaweb_access', ['user_id', 'repository'])
+        db.create_unique(u'runsala_access', ['user_id', 'repository_id'])
 
 
     def backwards(self, orm):
         # Removing unique constraint on 'Access', fields ['user', 'repository']
-        db.delete_unique(u'salaweb_access', ['user_id', 'repository'])
+        db.delete_unique(u'runsala_access', ['user_id', 'repository_id'])
+
+        # Deleting model 'Repository'
+        db.delete_table(u'runsala_repository')
+
+        # Deleting model 'Secret'
+        db.delete_table(u'runsala_secret')
 
         # Deleting model 'Access'
-        db.delete_table(u'salaweb_access')
+        db.delete_table(u'runsala_access')
 
 
     models = {
@@ -66,13 +88,25 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
-        u'salaweb.access': {
+        u'runsala.access': {
             'Meta': {'unique_together': "(('user', 'repository'),)", 'object_name': 'Access'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'key': ('django.db.models.fields.TextField', [], {}),
-            'repository': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'repository': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['runsala.Repository']"}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"})
+        },
+        u'runsala.repository': {
+            'Meta': {'object_name': 'Repository'},
+            'description': ('django.db.models.fields.TextField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
+        },
+        u'runsala.secret': {
+            'Meta': {'object_name': 'Secret'},
+            'data': ('django.db.models.fields.TextField', [], {}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'path': ('django.db.models.fields.CharField', [], {'max_length': '255'})
         }
     }
 
-    complete_apps = ['salaweb']
+    complete_apps = ['runsala']

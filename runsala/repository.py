@@ -9,7 +9,7 @@ class Repository(object):
     def __init__(self, name):
         self.name = name
         self.path = os.path.join(
-            settings.SALAWEB_DATADIR,
+            settings.RUNSALA_DATADIR,
             'repositories',
             name,
         )

@@ -1,0 +1,48 @@
+{% extends "runsala/base.html" %}
+
+{% block content %}
+<div class="stack">
+  {% if repositories %}
+  {% for repository in repositories %}
+  <div data-repository="{{ repository.name }}" class="tree">
+    {{ repository.as_html|safe }}
+  </div>
+  {% endfor %}
+  {% else %}
+  <div class="alert">No repositories</div>
+  {% endif %}
+</div>
+
+<div id="new-repository-prompt" class="modal hide fade">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal">×</button>
+    <h3>New repository</h3>
+  </div>
+  <div class="modal-body">
+    <label for="id_repository_name">Name:</label>
+    <input type="text" name="name" id="id_repository_name">
+
+    <label for="id_repository_description">Description:</label>
+    <textarea name="description" id="id_repository_description"></textarea>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal">Cancel</button>
+    <a class="ok btn btn-primary" href="#">OK</a>
+  </div>
+</div>
+
+<div id="password-prompt" class="modal hide fade">
+  <div class="modal-body">
+    <a href="#" class="close" data-dismiss="modal">×</a>
+    <form>
+      <label>Enter your login password:</label>
+      <input type="password" name="password">
+
+      <div class="btn-toolbar">
+        <a class="btn" data-dismiss="modal" href="#">Cancel</a>
+        <input type="submit" class="btn btn-primary" value="OK">
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

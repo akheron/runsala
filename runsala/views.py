@@ -2,9 +2,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from salaweb.models import Access
-from salaweb.forms import LoginForm
-from salaweb.repository import Repository
+from runsala.models import Access
+from runsala.forms import LoginForm
 
 
 def login(request):
@@ -24,7 +23,7 @@ def login(request):
         form = LoginForm()
         error = False
 
-    return render(request, 'salaweb/login.html', {
+    return render(request, 'runsala/login.html', {
         'form': form,
         'error': error,
     })
@@ -40,10 +39,16 @@ def logout(request):
 
 @login_required
 def index(request):
-    accesses = Access.objects.filter(user=request.user)
-    repositories = [Repository(a.repository) for a in accesses]
+    accesses = Access.objects \
+        .select_related('repository') \
+        .filter(user=request.user)
 
-    return render(request, 'salaweb/index.html', {
+    repositories = sorted(
+        [access.repository for access in accesses],
+        key=lambda repository: repository.name,
+    )
+
+    return render(request, 'runsala/index.html', {
         'repositories': repositories,
     })
 

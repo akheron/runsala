@@ -32,6 +32,28 @@ $(function() {
 
 
 (function() {
+    function modal(el) {
+        var inputs = el.find('[type=text], [type=password], textarea'),
+            ok = el.find('.ok'),
+            dfd = $.Deferred();
+
+        inputs.val('');
+        ok.off('click').on('click', function(e) {
+            var data = {};
+            e.preventDefault();
+
+            inputs.each(function() {
+                var _this = $(this);
+                data[_this.attr('name')] = _this.val();
+            });
+
+            dfd.resolve(data);
+        });
+
+        el.modal();
+        return dfd.promise();
+    };
+
     function tabs(tabs, stack) {
         if(!(tabs.length && stack.length)) {
             // Not on the main page
@@ -41,7 +63,7 @@ $(function() {
         tabs.children(':first').addClass('active');
         stack.children(':first').addClass('active');
 
-        tabs.find('li').click(function(e) {
+        tabs.find('[data-repository]').click(function(e) {
             e.preventDefault();
             var repository = $(this).data('repository');
 
@@ -86,8 +108,28 @@ $(function() {
         el.on('click', 'a', open);
     };
 
+    function admin(el) {
+        el.find('.new-repository').click(function(e) {
+            modal($('#new-repository-prompt')).done(function(data) {
+                $.ajax({
+                    url: '/ajax/',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(data),
+                    dataType: 'json'
+                }).fail(function(xhr) {
+                    var data = JSON.parse(xhr.responseText);
+                    console.log('error', data.error);
+                }).done(function(data) {
+                    console.log('success', data);
+                });
+            });
+        });
+    };
+
     $(function() {
         tabs($('.navbar .tabs'), $('.stack'));
         repository($('.stack > div'));
+        admin($('.navbar .admin'));
     });
 })();

@@ -13,3 +13,7 @@ body {
 .file, .dir .dir {
     padding-left: 25px;
 }
+
+.modal form {
+    margin: 0;
+}
